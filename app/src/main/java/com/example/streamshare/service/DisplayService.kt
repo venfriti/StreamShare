@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.streamshare.Service
+package com.example.streamshare.service
 
 import android.app.NotificationChannel
 import android.app.NotificationManager

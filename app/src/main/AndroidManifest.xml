@@ -43,7 +43,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.example.streamshare.Service.DisplayService"
+        <service android:name="com.example.streamshare.service.DisplayService"
             android:foregroundServiceType="mediaProjection"
             />
     </application>
