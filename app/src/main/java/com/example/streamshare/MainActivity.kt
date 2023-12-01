@@ -2,11 +2,14 @@ package com.example.streamshare
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -24,6 +27,9 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
 
     private val REQUEST_CODE_RECORD = 180 //random num
 
+    private val checker = -1
+
+    private lateinit var displayServiceResultLauncher: ActivityResultLauncher<Intent>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,19 +37,45 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
         enableEdgeToEdge()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.activity_example_rtmp)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(
+            findViewById(R.id.activity_example_rtmp)
+        ) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
         startStopButton = findViewById(R.id.start_stop_button)
         enterUrl = findViewById(R.id.enter_url)
+
+        displayServiceResultLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            Log.e("MainActivity", result.resultCode.toString())
+            val reCode = result.resultCode
+            if (result.data != null && (
+                        reCode == REQUEST_CODE_STREAM || reCode == REQUEST_CODE_RECORD
+                    )
+                ) {
+                // Handle the result here
+                val data: Intent? = result.data
+                val displayService = DisplayService.INSTANCE
+                if (displayService != null){
+                    val endpoint: String = enterUrl.text.toString()
+                    displayService.prepareStreamRtp(endpoint, result.resultCode, data!!)
+                    displayService.startStreamRtp(endpoint)
+                }
+            } else {
+                Toast.makeText(this, "No permissions available", Toast.LENGTH_SHORT).show()
+                startStopButton.setText(R.string.start_button)
+            }
+        }
 
         startStopButton.setOnClickListener {
             startStopStream()
         }
 
-        val displayService: DisplayService? = DisplayService.Companion.INSTANCE
+        val displayService: DisplayService? = DisplayService.INSTANCE
         //No streaming/recording start service
         if (displayService == null) {
             startService(Intent(this, DisplayService::class.java))
@@ -56,11 +88,12 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
     }
 
     private fun startStopStream() {
-        val displayService: DisplayService? = DisplayService.Companion.INSTANCE
+        val displayService: DisplayService? = DisplayService.INSTANCE
         if (displayService != null) {
             if (!displayService.isStreaming()) {
                 startStopButton.setText(R.string.stop_button)
-                startActivityIfNeeded(displayService.sendIntent()!!, REQUEST_CODE_STREAM)
+                val displayIntent = displayService.sendIntent()
+                displayServiceResultLauncher.launch(displayIntent)
             } else {
                 startStopButton.setText(R.string.start_button)
                 displayService.stopStream()
