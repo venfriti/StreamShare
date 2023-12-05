@@ -6,8 +6,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.WindowManager
+import android.view.accessibility.AccessibilityManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -25,8 +27,8 @@ import com.pedro.common.ConnectChecker
 
 class MainActivity : AppCompatActivity(), ConnectChecker {
 
-
     private lateinit var startStopButton: Button
+    private lateinit var backButton: Button
     private lateinit var enterUrl: EditText
 
     private lateinit var displayServiceResultLauncher: ActivityResultLauncher<Intent>
@@ -58,6 +60,7 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
         requestPermissions()
 
         startStopButton = findViewById(R.id.start_stop_button)
+        backButton = findViewById(R.id.back_button)
         enterUrl = findViewById(R.id.enter_url)
 
         displayServiceResultLauncher = registerForActivityResult(
@@ -74,16 +77,22 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
                     val endpoint: String = enterUrl.text.toString()
                     displayService.prepareStreamRtp(endpoint, reCode, data!!)
                     displayService.startStreamRtp(endpoint)
+                    switchBack()
                 }
             } else {
                 Toast.makeText(this, "No permissions available", Toast.LENGTH_SHORT).show()
                 startStopButton.setText(R.string.start_button)
+                switchBack()
             }
         }
 
         startStopButton.setOnClickListener {
+            startStopStream()
+        }
+
+        backButton.setOnClickListener {
             switchBack()
-//            startStopStream()
+
         }
 
         val displayService: DisplayService? = DisplayService.INSTANCE
@@ -98,6 +107,7 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
         }
     }
 
+
     private fun startStopStream() {
         val displayService: DisplayService? = DisplayService.INSTANCE
         if (displayService != null) {
@@ -105,13 +115,14 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
                 startStopButton.setText(R.string.stop_button)
                 val displayIntent = displayService.sendIntent()
                 displayServiceResultLauncher.launch(displayIntent)
+
             } else {
                 startStopButton.setText(R.string.start_button)
                 displayService.stopStream()
             }
         }
     }
-    fun switchBack() {
+    private fun switchBack() {
         val originalAppLaunchIntent = packageManager.getLaunchIntentForPackage("com.example.datastructures")
         originalAppLaunchIntent?.let {
             startActivity(it)
@@ -156,6 +167,20 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
             }
         }
         return true
+    }
+
+    private fun isAccessibilityServiceEnabled(): Boolean {
+        val serviceName = "com.example.streamshare.service/.StartAccessibilityService"
+        val settingsValue = Settings.Secure.getString(
+            contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )
+        return settingsValue?.contains(serviceName) == true
+    }
+
+    private fun openAccessibilitySettings() {
+        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+        startActivity(intent)
     }
 
     private fun hasPermissions(context: Context): Boolean {

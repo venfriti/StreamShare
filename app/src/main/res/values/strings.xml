@@ -4,4 +4,5 @@
     <string name="stop_button">Stop Stream</string>
     <string name="hint_rtmp">rtmp://yourendpoint</string>
     <string name="accessibility_service_label">Screen Share</string>
+    <string name="go_back">Switch Back</string>
 </resources>
