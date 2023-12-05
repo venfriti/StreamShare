@@ -29,12 +29,6 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
     private lateinit var startStopButton: Button
     private lateinit var enterUrl: EditText
 
-    private val REQUEST_CODE_STREAM = 179 //random num
-
-    private val REQUEST_CODE_RECORD = 180 //random num
-
-    private val checker = -1
-
     private lateinit var displayServiceResultLauncher: ActivityResultLauncher<Intent>
 
     private val PERMISSIONS = arrayOf(
@@ -88,7 +82,8 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
         }
 
         startStopButton.setOnClickListener {
-            startStopStream()
+            switchBack()
+//            startStopStream()
         }
 
         val displayService: DisplayService? = DisplayService.INSTANCE
@@ -114,6 +109,13 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
                 startStopButton.setText(R.string.start_button)
                 displayService.stopStream()
             }
+        }
+    }
+    fun switchBack() {
+        val originalAppLaunchIntent = packageManager.getLaunchIntentForPackage("com.example.datastructures")
+        originalAppLaunchIntent?.let {
+            startActivity(it)
+            finish()
         }
     }
 

@@ -3,4 +3,5 @@
     <string name="start_button">Start Stream</string>
     <string name="stop_button">Stop Stream</string>
     <string name="hint_rtmp">rtmp://yourendpoint</string>
+    <string name="accessibility_service_label">Screen Share</string>
 </resources>
