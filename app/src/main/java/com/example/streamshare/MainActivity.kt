@@ -1,15 +1,18 @@
 package com.example.streamshare
 
 import android.Manifest
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.ContentObserver
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.provider.Settings
+import android.text.TextUtils.SimpleStringSplitter
 import android.util.Log
 import android.view.WindowManager
-import android.view.accessibility.AccessibilityManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -22,6 +25,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.streamshare.service.DisplayService
+import com.example.streamshare.service.StartAccessibilityService
 import com.pedro.common.ConnectChecker
 
 
@@ -29,6 +33,7 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
 
     private lateinit var startStopButton: Button
     private lateinit var backButton: Button
+    private lateinit var checkButton: Button
     private lateinit var enterUrl: EditText
 
     private lateinit var displayServiceResultLauncher: ActivityResultLauncher<Intent>
@@ -61,6 +66,8 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
 
         startStopButton = findViewById(R.id.start_stop_button)
         backButton = findViewById(R.id.back_button)
+        checkButton = findViewById(R.id.check_button)
+
         enterUrl = findViewById(R.id.enter_url)
 
         displayServiceResultLauncher = registerForActivityResult(
@@ -87,12 +94,21 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
         }
 
         startStopButton.setOnClickListener {
-            startStopStream()
+//            startStopStream()
+            openAccessibilitySettings()
         }
 
         backButton.setOnClickListener {
             switchBack()
+        }
 
+        checkButton.setOnClickListener {
+            val enabled = isAccessibilityServiceEnabled(applicationContext, StartAccessibilityService::class.java)
+            if(enabled){
+                Toast.makeText(this, "Accessibility Service Permission Granted", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(this, "Accessibility Service Permission Not Granted", Toast.LENGTH_LONG).show()
+            }
         }
 
         val displayService: DisplayService? = DisplayService.INSTANCE
@@ -151,10 +167,10 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
         }
     }
 
-    private fun showPermissionsErrorAndRequest() {
-        Toast.makeText(this, "You need permissions before", Toast.LENGTH_SHORT).show()
-        requestPermissions()
-    }
+//    private fun showPermissionsErrorAndRequest() {
+//        Toast.makeText(this, "You need permissions before", Toast.LENGTH_SHORT).show()
+//        requestPermissions()
+//    }
 
     private fun hasPermissions(context: Context?, vararg permissions: String): Boolean {
         if (context != null) {
@@ -169,13 +185,22 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
         return true
     }
 
-    private fun isAccessibilityServiceEnabled(): Boolean {
-        val serviceName = "com.example.streamshare.service/.StartAccessibilityService"
-        val settingsValue = Settings.Secure.getString(
-            contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        )
-        return settingsValue?.contains(serviceName) == true
+    private fun isAccessibilityServiceEnabled(context: Context, accessibilityService: Class<*>?): Boolean {
+        val expectedComponentName = ComponentName(context, accessibilityService!!)
+        val enabledServicesSetting =
+            Settings.Secure.getString(
+                context.contentResolver,
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+            )
+                ?: return false
+        val colonSplitter = SimpleStringSplitter(':')
+        colonSplitter.setString(enabledServicesSetting)
+        while (colonSplitter.hasNext()) {
+            val componentNameString = colonSplitter.next()
+            val enabledService = ComponentName.unflattenFromString(componentNameString)
+            if (enabledService != null && enabledService == expectedComponentName) return true
+        }
+        return false
     }
 
     private fun openAccessibilitySettings() {
