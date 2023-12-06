@@ -9,9 +9,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.text.TextUtils.SimpleStringSplitter
-import android.util.AttributeSet
 import android.util.Log
-import android.view.View
+import android.view.ViewTreeObserver
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.Toast
@@ -101,7 +100,6 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
             val reCode = result.resultCode
             if (result.data != null && (reCode == RESULT_OK)
                 ) {
-                // Handle the result here
                 val data: Intent? = result.data
                 val displayService = DisplayService.INSTANCE
                 if (displayService != null){
@@ -117,6 +115,20 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
             }
         }
 
+        val rootView = window.decorView.rootView
+        rootView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                if (enabled) {
+                    startStopStream()
+                } else {
+                    showSnackBar()
+                }
+
+                rootView.viewTreeObserver.removeOnPreDrawListener(this)
+                return true
+            }
+        })
+
         val displayService: DisplayService? = DisplayService.INSTANCE
         //No streaming/recording start service
         if (displayService == null) {
@@ -126,18 +138,6 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
             startStopButton.setText(R.string.stop_button)
         } else {
             startStopButton.setText(R.string.start_button)
-        }
-    }
-
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-
-        if (hasFocus){
-            if (enabled) {
-                startStopStream()
-            } else {
-                showSnackBar()
-            }
         }
     }
 
