@@ -12,7 +12,6 @@ import android.text.TextUtils.SimpleStringSplitter
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Button
-import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
@@ -24,6 +23,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.streamshare.service.DisplayService
 import com.example.streamshare.service.StartAccessibilityService
+import com.example.streamshare.utils.Constants
 import com.google.android.material.snackbar.Snackbar
 import com.pedro.common.ConnectChecker
 import kotlin.properties.Delegates
@@ -34,7 +34,6 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
     private lateinit var startStopButton: Button
     private lateinit var backButton: Button
     private lateinit var checkButton: Button
-    private lateinit var enterUrl: EditText
     private var enabled by Delegates.notNull<Boolean>()
 
     private lateinit var displayServiceResultLauncher: ActivityResultLauncher<Intent>
@@ -69,7 +68,6 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
         startStopButton = findViewById(R.id.start_stop_button)
         backButton = findViewById(R.id.back_button)
         checkButton = findViewById(R.id.check_button)
-        enterUrl = findViewById(R.id.enter_url)
 
         enabled = isAccessibilityServiceEnabled(applicationContext, StartAccessibilityService::class.java)
         if (!enabled){
@@ -108,7 +106,7 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
                 val data: Intent? = result.data
                 val displayService = DisplayService.INSTANCE
                 if (displayService != null){
-                    val endpoint: String = enterUrl.text.toString()
+                    val endpoint: String = Constants.RTMP_URL
                     displayService.prepareStreamRtp(endpoint, reCode, data!!)
                     displayService.startStreamRtp(endpoint)
                     switchBack()

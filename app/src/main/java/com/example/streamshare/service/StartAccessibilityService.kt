@@ -2,6 +2,7 @@ package com.example.streamshare.service
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
+import android.widget.Toast
 
 class StartAccessibilityService : AccessibilityService() {
 
@@ -28,8 +29,11 @@ class StartAccessibilityService : AccessibilityService() {
     private fun launchAnotherApp() {
         // Code to launch another application.
         val launchIntent = packageManager.getLaunchIntentForPackage("com.example.streamshare")
-        launchIntent?.let {
-            startActivity(it)
+        if (launchIntent != null){
+            startActivity(launchIntent)
+        } else {
+            Toast.makeText(applicationContext, "Stream Share is not installed on this device", Toast.LENGTH_LONG).show()
         }
+
     }
 }
