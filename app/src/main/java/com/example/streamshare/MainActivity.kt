@@ -5,10 +5,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.database.ContentObserver
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.provider.Settings
 import android.text.TextUtils.SimpleStringSplitter
 import android.util.Log
@@ -26,7 +24,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.streamshare.service.DisplayService
 import com.example.streamshare.service.StartAccessibilityService
+import com.google.android.material.snackbar.Snackbar
 import com.pedro.common.ConnectChecker
+import kotlin.properties.Delegates
 
 
 class MainActivity : AppCompatActivity(), ConnectChecker {
@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
     private lateinit var backButton: Button
     private lateinit var checkButton: Button
     private lateinit var enterUrl: EditText
+    private var enabled by Delegates.notNull<Boolean>()
 
     private lateinit var displayServiceResultLauncher: ActivityResultLauncher<Intent>
 
@@ -62,13 +63,39 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
         requestPermissions()
 
         startStopButton = findViewById(R.id.start_stop_button)
         backButton = findViewById(R.id.back_button)
         checkButton = findViewById(R.id.check_button)
-
         enterUrl = findViewById(R.id.enter_url)
+
+        enabled = isAccessibilityServiceEnabled(applicationContext, StartAccessibilityService::class.java)
+        if (!enabled){
+            showSnackBar()
+        }
+
+        startStopButton.setOnClickListener {
+            if (enabled) {
+                startStopStream()
+            } else {
+                showSnackBar()
+            }
+        }
+
+        backButton.setOnClickListener {
+            switchBack()
+        }
+
+        checkButton.setOnClickListener {
+            if(enabled){
+                Toast.makeText(this, getString(R.string.permission_granted), Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(this, getString(R.string.permission_denied), Toast.LENGTH_LONG).show()
+            }
+        }
+
 
         displayServiceResultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -87,27 +114,9 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
                     switchBack()
                 }
             } else {
-                Toast.makeText(this, "No permissions available", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.start_permission_denied), Toast.LENGTH_SHORT).show()
                 startStopButton.setText(R.string.start_button)
                 switchBack()
-            }
-        }
-
-        startStopButton.setOnClickListener {
-//            startStopStream()
-            openAccessibilitySettings()
-        }
-
-        backButton.setOnClickListener {
-            switchBack()
-        }
-
-        checkButton.setOnClickListener {
-            val enabled = isAccessibilityServiceEnabled(applicationContext, StartAccessibilityService::class.java)
-            if(enabled){
-                Toast.makeText(this, "Accessibility Service Permission Granted", Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(this, "Accessibility Service Permission Not Granted", Toast.LENGTH_LONG).show()
             }
         }
 
@@ -121,6 +130,24 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
         } else {
             startStopButton.setText(R.string.start_button)
         }
+    }
+
+    private fun showSnackBar() {
+        Snackbar.make(
+            findViewById(
+                R.id.activity_example_rtmp
+            ),
+            R.string.permission_denied_explanation,
+            Snackbar.LENGTH_LONG
+        )
+            .setAction(R.string.settings) {
+                openAccessibilitySettings()
+            }.show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        enabled = isAccessibilityServiceEnabled(applicationContext, StartAccessibilityService::class.java)
     }
 
 
@@ -219,11 +246,11 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
     override fun onConnectionStarted(url: String) {}
 
     override fun onConnectionSuccess() {
-        Toast.makeText(this, "Connection success", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.connection_success), Toast.LENGTH_SHORT).show()
     }
 
     override fun onConnectionFailed(reason: String) {
-        Toast.makeText(this, "Connection failed. $reason", Toast.LENGTH_SHORT)
+        Toast.makeText(this, getString(R.string.connection_failed, reason), Toast.LENGTH_SHORT)
             .show()
         DisplayService.INSTANCE?.stopStream()
         startStopButton.setText(R.string.start_button)
@@ -232,15 +259,15 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
     override fun onNewBitrate(bitrate: Long) {}
 
     override fun onDisconnect() {
-        Toast.makeText(this, "Disconnected", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.disconnected), Toast.LENGTH_SHORT).show()
     }
 
     override fun onAuthError() {
-        Toast.makeText(this, "Auth error", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.auth_error), Toast.LENGTH_SHORT).show()
     }
 
     override fun onAuthSuccess() {
-        Toast.makeText(this, "Auth success", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.auth_success), Toast.LENGTH_SHORT).show()
     }
 
 }

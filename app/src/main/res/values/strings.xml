@@ -6,4 +6,14 @@
     <string name="accessibility_service_label">Screen Share</string>
     <string name="go_back">Switch Back</string>
     <string name="check">Check</string>
+    <string name="permission_denied_explanation">You need to grant accessibility permission in order to use this service</string>
+    <string name="settings">SETTINGS</string>
+    <string name="permission_granted">Accessibility Service Permission Granted</string>
+    <string name="permission_denied">Accessibility Service Permission Denied</string>
+    <string name="start_permission_denied">Permission Denied</string>
+    <string name="connection_success">Connection success</string>
+    <string name="connection_failed">Connection failed. %1$s</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="auth_error">Auth error</string>
+    <string name="auth_success">Auth success</string>
 </resources>
