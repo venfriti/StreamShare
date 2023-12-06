@@ -9,7 +9,9 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.text.TextUtils.SimpleStringSplitter
+import android.util.AttributeSet
 import android.util.Log
+import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.Toast
@@ -70,9 +72,6 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
         checkButton = findViewById(R.id.check_button)
 
         enabled = isAccessibilityServiceEnabled(applicationContext, StartAccessibilityService::class.java)
-        if (!enabled){
-            showSnackBar()
-        }
 
         startStopButton.setOnClickListener {
             if (enabled) {
@@ -127,6 +126,18 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
             startStopButton.setText(R.string.stop_button)
         } else {
             startStopButton.setText(R.string.start_button)
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+
+        if (hasFocus){
+            if (enabled) {
+                startStopStream()
+            } else {
+                showSnackBar()
+            }
         }
     }
 

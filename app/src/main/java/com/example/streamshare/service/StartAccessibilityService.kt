@@ -32,7 +32,7 @@ class StartAccessibilityService : AccessibilityService() {
         if (launchIntent != null){
             startActivity(launchIntent)
         } else {
-            Toast.makeText(applicationContext, "Stream Share is not installed on this device", Toast.LENGTH_LONG).show()
+            Toast.makeText(baseContext, "Stream Share is not installed on this device", Toast.LENGTH_LONG).show()
         }
 
     }
