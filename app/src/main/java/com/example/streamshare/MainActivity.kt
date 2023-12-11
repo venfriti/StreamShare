@@ -263,6 +263,7 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
             .show()
         DisplayService.INSTANCE?.stopStream()
         startStopButton.setText(R.string.start_button)
+        Log.e("Main Activity", "Failed Connection")
     }
 
     override fun onNewBitrate(bitrate: Long) {}
