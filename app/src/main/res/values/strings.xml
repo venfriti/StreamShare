@@ -16,4 +16,7 @@
     <string name="disconnected">Disconnected</string>
     <string name="auth_error">Auth error</string>
     <string name="auth_success">Auth success</string>
+    <string name="target_app">com.openai.chatgpt</string>
+    <string name="com_openai_chatgpt">com.openai.chatgpt</string>
+    <string name="enter_url">Enter Url</string>
 </resources>

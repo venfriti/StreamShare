@@ -175,7 +175,7 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
         }
     }
     private fun switchBack() {
-        val originalAppLaunchIntent = packageManager.getLaunchIntentForPackage("com.example.datastructures")
+        val originalAppLaunchIntent = packageManager.getLaunchIntentForPackage(getString(R.string.target_app))
         originalAppLaunchIntent?.let {
             startActivity(it)
             finish()
