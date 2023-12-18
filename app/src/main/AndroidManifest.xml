@@ -21,7 +21,7 @@
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <queries>
-        <package android:name="com.example.datastructures" />
+        <package android:name="com.kudabank.app" />
     </queries>
 
 

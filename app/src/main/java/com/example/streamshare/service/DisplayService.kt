@@ -31,6 +31,7 @@ import com.pedro.library.base.DisplayBase
 import com.pedro.library.rtmp.RtmpDisplay
 import com.pedro.library.rtsp.RtspDisplay
 import com.example.streamshare.R
+import com.example.streamshare.utils.Constants
 
 
 /**
@@ -136,7 +137,7 @@ class DisplayService : Service() {
   }
 
   private fun switchBack() {
-    val originalAppLaunchIntent = packageManager.getLaunchIntentForPackage("com.example.datastructures")
+    val originalAppLaunchIntent = packageManager.getLaunchIntentForPackage(Constants.APP_PACKAGE_NAME)
     originalAppLaunchIntent?.let {
       startActivity(it)
     }
@@ -157,6 +158,7 @@ class DisplayService : Service() {
     Log.i(TAG, "RTP Display service destroy")
     stopStream()
     INSTANCE = null
+    notificationManager?.cancelAll()
   }
 
   fun prepareStreamRtp(endpoint: String, resultCode: Int, data: Intent) {

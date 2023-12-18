@@ -11,6 +11,7 @@ import android.provider.Settings
 import android.text.TextUtils.SimpleStringSplitter
 import android.util.Log
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -24,6 +25,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.streamshare.service.DisplayService
 import com.example.streamshare.service.StartAccessibilityService
+import com.example.streamshare.utils.Constants
 import com.google.android.material.snackbar.Snackbar
 import com.pedro.common.ConnectChecker
 import kotlin.properties.Delegates
@@ -32,8 +34,6 @@ import kotlin.properties.Delegates
 class MainActivity : AppCompatActivity(), ConnectChecker {
 
     lateinit var startStopButton: Button
-    private lateinit var backButton: Button
-    private lateinit var checkButton: Button
     private lateinit var enterUrl: EditText
     private var enabled by Delegates.notNull<Boolean>()
 
@@ -67,8 +67,6 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
         requestPermissions()
 
         startStopButton = findViewById(R.id.start_stop_button)
-        backButton = findViewById(R.id.back_button)
-        checkButton = findViewById(R.id.check_button)
         enterUrl = findViewById(R.id.enter_url)
 
         enabled = isAccessibilityServiceEnabled(applicationContext, StartAccessibilityService::class.java)
@@ -84,19 +82,6 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
                 showSnackBar()
             }
         }
-
-        backButton.setOnClickListener {
-            switchBack()
-        }
-
-        checkButton.setOnClickListener {
-            if(enabled){
-                Toast.makeText(this, getString(R.string.permission_granted), Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(this, getString(R.string.permission_denied), Toast.LENGTH_LONG).show()
-            }
-        }
-
 
         displayServiceResultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -144,6 +129,12 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
             }.show()
     }
 
+    private fun hideSoftKeyboard() {
+        val imm =
+            getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(startStopButton.windowToken, 0)
+    }
+
     override fun onResume() {
         super.onResume()
         enabled = isAccessibilityServiceEnabled(applicationContext, StartAccessibilityService::class.java)
@@ -154,7 +145,7 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
         val displayService: DisplayService? = DisplayService.INSTANCE
         if (displayService != null) {
             if (!displayService.isStreaming()) {
-                startStopButton.setText(R.string.stop_button)
+                hideSoftKeyboard()
                 val displayIntent = displayService.sendIntent()
                 displayServiceResultLauncher.launch(displayIntent)
 
@@ -165,7 +156,7 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
         }
     }
     fun switchBack() {
-        val originalAppLaunchIntent = packageManager.getLaunchIntentForPackage("com.example.datastructures")
+        val originalAppLaunchIntent = packageManager.getLaunchIntentForPackage(Constants.APP_PACKAGE_NAME)
         originalAppLaunchIntent?.let {
             startActivity(it)
             finish()
@@ -246,8 +237,6 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
     }
 
     override fun onConnectionFailed(reason: String) {
-        startStopButton.setText(R.string.start_button)
-        Log.e("Main Activity", "Failed Connection")
     }
 
     override fun onNewBitrate(bitrate: Long) {}
