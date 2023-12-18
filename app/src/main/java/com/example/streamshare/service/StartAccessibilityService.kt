@@ -11,10 +11,6 @@ class StartAccessibilityService : AccessibilityService() {
     private var shouldClose = false
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-
-
-
-
             val packageName = event.packageName?.toString()
             if (packageName == "com.example.datastructures") {
                 // The target app is opened, launch another app.

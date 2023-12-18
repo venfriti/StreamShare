@@ -24,6 +24,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.pedro.common.ConnectChecker
 import com.pedro.library.base.DisplayBase
@@ -105,6 +106,7 @@ class DisplayService : Service() {
 
     override fun onConnectionSuccess() {
       showNotification("Stream started")
+      switchBack()
       Log.e(TAG, "RTP service destroy")
     }
 
@@ -114,6 +116,9 @@ class DisplayService : Service() {
 
     override fun onConnectionFailed(reason: String) {
       showNotification("Stream connection failed")
+      INSTANCE?.stopStream()
+      Toast.makeText(applicationContext, getString(R.string.connection_failed, reason), Toast.LENGTH_SHORT)
+        .show()
       Log.e(TAG, "RTP service destroy")
     }
 
@@ -127,6 +132,13 @@ class DisplayService : Service() {
 
     override fun onAuthSuccess() {
       showNotification("Stream auth success")
+    }
+  }
+
+  private fun switchBack() {
+    val originalAppLaunchIntent = packageManager.getLaunchIntentForPackage("com.example.datastructures")
+    originalAppLaunchIntent?.let {
+      startActivity(it)
     }
   }
 
