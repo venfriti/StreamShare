@@ -118,7 +118,7 @@ class DisplayService : Service() {
     override fun onConnectionFailed(reason: String) {
       showNotification("Stream connection failed")
       INSTANCE?.stopStream()
-      Toast.makeText(applicationContext, getString(R.string.connection_failed, reason), Toast.LENGTH_SHORT)
+      Toast.makeText(applicationContext, getString(R.string.connection_failed, reason), Toast.LENGTH_LONG)
         .show()
       Log.e(TAG, "RTP service destroy")
     }

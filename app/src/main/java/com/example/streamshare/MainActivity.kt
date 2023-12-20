@@ -33,7 +33,7 @@ import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity(), ConnectChecker {
 
-    lateinit var startStopButton: Button
+    private lateinit var startStopButton: Button
     private lateinit var enterUrl: EditText
     private var enabled by Delegates.notNull<Boolean>()
 
