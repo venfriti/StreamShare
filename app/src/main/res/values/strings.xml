@@ -16,4 +16,5 @@
     <string name="disconnected">Disconnected</string>
     <string name="auth_error">Auth error</string>
     <string name="auth_success">Auth success</string>
+    <string name="enter_url">Enter Url</string>
 </resources>
