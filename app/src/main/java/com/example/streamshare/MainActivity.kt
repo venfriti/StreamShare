@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -178,6 +179,25 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
             }.show()
     }
 
+
+
+    private fun showPermissionSnackBar(){
+        Snackbar.make(
+            findViewById(
+                R.id.activity_example_rtmp
+            ),
+            "You need to enable required permissions to use this service",
+            Snackbar.LENGTH_LONG
+        )
+            .setAction(R.string.settings) {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                intent.data = Uri.parse("package:$packageName")
+
+                // Start the settings activity
+                startActivity(intent)
+            }.show()
+    }
+
     private fun hideSoftKeyboard() {
         val imm =
             getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -191,17 +211,21 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
 
 
     private fun startStopStream() {
-        val displayService: DisplayService? = DisplayService.INSTANCE
-        if (displayService != null) {
-            if (!displayService.isStreaming()) {
-                hideSoftKeyboard()
-                val displayIntent = displayService.sendIntent()
-                displayServiceResultLauncher.launch(displayIntent)
-
-            } else {
-                startStopButton.setText(R.string.start_button)
-                displayService.stopStream()
+        if (hasPermissions(applicationContext)){
+            val displayService: DisplayService? = DisplayService.INSTANCE
+            if (displayService != null) {
+                if (!displayService.isStreaming()) {
+                    hideSoftKeyboard()
+                    val displayIntent = displayService.sendIntent()
+                    displayServiceResultLauncher.launch(displayIntent)
+                } else {
+                    startStopButton.setText(R.string.start_button)
+                    displayService.stopStream()
+                }
             }
+        }
+        else {
+            showPermissionSnackBar()
         }
     }
     fun switchBack() {
