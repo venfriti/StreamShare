@@ -9,14 +9,12 @@ import com.example.streamshare.utils.Constants
 class StartAccessibilityService : AccessibilityService() {
 
     private var counter = true
-    private var shouldClose = false
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             val packageName = event.packageName?.toString()
             if (packageName == Constants.APP_PACKAGE_NAME) {
                 // The target app is opened, launch another app.
                 counter = if (counter) {
-                    shouldClose = true
                     launchAnotherApp()
                     false
                 } else {
@@ -24,13 +22,6 @@ class StartAccessibilityService : AccessibilityService() {
                 }
             }
         }
-    }
-
-    override fun onServiceConnected() {
-        val info = AccessibilityServiceInfo()
-        info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
-        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
-        serviceInfo = info
     }
 
     override fun onInterrupt() {

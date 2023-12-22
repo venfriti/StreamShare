@@ -188,7 +188,16 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
 
     override fun onResume() {
         super.onResume()
-        enabled = isAccessibilityServiceEnabled(applicationContext, StartAccessibilityService::class.java)
+        enabled = isAccessibilityServiceEnabled(
+            applicationContext,
+            StartAccessibilityService::class.java
+        )
+        val displayService: DisplayService? = DisplayService.INSTANCE
+        if (displayService != null && displayService.isStreaming()) {
+            startStopButton.setText(R.string.stop_button)
+        } else {
+            startStopButton.setText(R.string.start_button)
+        }
     }
 
 
