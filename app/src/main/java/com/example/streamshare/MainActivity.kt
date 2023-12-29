@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.streamshare.RecordCheck.recording
 import com.example.streamshare.service.DisplayService
 import com.example.streamshare.service.StartAccessibilityService
 import com.example.streamshare.ui.theme.StreamShareTheme
@@ -227,6 +228,7 @@ class MainActivity : AppCompatActivity(), ConnectChecker {
             //stop service only if no streaming or recording
             stopService(Intent(this, DisplayService::class.java))
         }
+        recording = false
     }
 
     private fun requestPermissions() {

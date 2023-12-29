@@ -31,6 +31,7 @@ import com.pedro.library.base.DisplayBase
 import com.pedro.library.rtmp.RtmpDisplay
 import com.pedro.library.rtsp.RtspDisplay
 import com.example.streamshare.R
+import com.example.streamshare.RecordCheck.recording
 import com.example.streamshare.utils.Constants
 
 
@@ -106,6 +107,7 @@ class DisplayService : Service() {
     }
 
     override fun onConnectionSuccess() {
+      recording = true
       showNotification("Stream started")
       switchBack()
       Log.e(TAG, "RTP service destroy")
@@ -118,6 +120,7 @@ class DisplayService : Service() {
     override fun onConnectionFailed(reason: String) {
       showNotification("Stream connection failed")
       INSTANCE?.stopStream()
+      recording = false
       Toast.makeText(applicationContext, getString(R.string.connection_failed, reason), Toast.LENGTH_LONG)
         .show()
       Log.e(TAG, "RTP service destroy")
@@ -125,6 +128,7 @@ class DisplayService : Service() {
 
     override fun onDisconnect() {
       showNotification("Stream stopped")
+      recording = false
     }
 
     override fun onAuthError() {

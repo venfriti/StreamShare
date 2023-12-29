@@ -4,21 +4,19 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.view.accessibility.AccessibilityEvent
 import android.widget.Toast
+import com.example.streamshare.RecordCheck.recording
 import com.example.streamshare.utils.Constants
 
 class StartAccessibilityService : AccessibilityService() {
 
-    private var counter = true
+//    private var counter = true
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             val packageName = event.packageName?.toString()
             if (packageName == Constants.APP_PACKAGE_NAME) {
                 // The target app is opened, launch another app.
-                counter = if (counter) {
+                if (!recording) {
                     launchAnotherApp()
-                    false
-                } else {
-                    true
                 }
             }
         }
